@@ -1,18 +1,30 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { increment, decrement, reset } from '../../redux/actions/counter';
 
-export default class Counter extends Component {
+class Counter extends Component {
   render() {
     return (
       <div>
-        <div>当前数量为：</div>
-        <button onClick={this._handleClick.bind(this)}>增加</button>
-        <button onClick={this._handleClick.bind(this)}>减少</button>
-        <button onClick={this._handleClick.bind(this)}>重置</button>
-      </div>
+        <div>当前数量为：{this.props.counter.count}</div>
+        <button onClick={() => this.props.increment()} > 增加</button>
+        <button onClick={() => this.props.decrement()}>减少</button>
+        <button onClick={() => this.props.reset()}>重置</button>
+      </div >
     )
   }
+}
 
-  _handleClick(e) {
-    console.log(e)
+const mapStateToProps = state => {
+  return { counter: state.counter }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    increment: () => { dispatch(increment()) },
+    decrement: () => { dispatch(decrement()) },
+    reset: () => { dispatch(reset()) }
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Counter);
