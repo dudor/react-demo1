@@ -28,11 +28,12 @@ export default function reducer(state = initState, action) {
       return {
         ...state,
         isLoading:false,
-        userInfo:"",
+        userInfo:{},
         errorMsg:"请求错误"
       }
       break;
     default:
+    return state;
       break;
   }
 
