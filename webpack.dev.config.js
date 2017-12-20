@@ -1,4 +1,5 @@
 const path = require('path');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 
@@ -11,7 +12,8 @@ module.exports = {
   /*输出到dist文件夹，输出文件名字为bundle.js*/
   output: {
     path: path.join(__dirname, './dist'),
-    filename: 'bundle.js'
+    filename: '[name].[hash].js',
+    chunkFilename: '[name].[chunkhash].js'
   },
   /*src文件夹下面的以.js结尾的文件，要使用babel解析*/
   /*cacheDirectory是用来缓存编译结果，下次编译加速*/
@@ -20,7 +22,21 @@ module.exports = {
       test: /\.js$/,
       use: ['babel-loader?cacheDirectory=true'],
       include: path.join(__dirname, 'src')
-    }]
+    },
+    {
+      test: /\.css$/,
+      use: ['style-loader', 'css-loader']
+    },
+    {
+      test: /\.(png|jpg|gif)$/,
+      use: [{
+        loader: 'url-loader',
+        options: {
+          limit: 8192
+        }
+      }]
+    }
+    ]
   },
   devServer: {
     port: 8080,
@@ -36,5 +52,10 @@ module.exports = {
       actions: path.join(__dirname, 'src/redux/actions'),
       reducers: path.join(__dirname, 'src/redux/reducers')
     }
-  }
+  },
+  devtool: 'inline-source-map',
+  plugins: [new HtmlWebpackPlugin({
+    filename: 'index.html',
+    template: path.join(__dirname, 'src/index.html')
+  })],
 };
