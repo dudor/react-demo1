@@ -1,13 +1,15 @@
 const path = require('path');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var webpack = require('webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+
 
 module.exports = {
-
   /*入口*/
   entry: {
     app: [
-      'react-hot-loader/patch',
       path.join(__dirname, 'src/index.js')
     ],
     vendor: ['react', 'react-router-dom', 'redux', 'react-dom', 'react-redux']
@@ -16,8 +18,9 @@ module.exports = {
   /*输出到dist文件夹，输出文件名字为bundle.js*/
   output: {
     path: path.join(__dirname, './dist'),
-    filename: '[name].[hash].js',
-    chunkFilename: '[name].[chunkhash].js'
+    filename: '[name].[chunkhash].js',
+    chunkFilename: '[name].[chunkhash].js',
+    publicPath: '/'
   },
   /*src文件夹下面的以.js结尾的文件，要使用babel解析*/
   /*cacheDirectory是用来缓存编译结果，下次编译加速*/
@@ -29,7 +32,10 @@ module.exports = {
     },
     {
       test: /\.css$/,
-      use: ['style-loader', 'css-loader']
+      use: ExtractTextPlugin.extract({
+        fallback: "style-loader",
+        use: "css-loader"
+      })
     },
     {
       test: /\.(png|jpg|gif)$/,
@@ -42,12 +48,7 @@ module.exports = {
     }
     ]
   },
-  devServer: {
-    port: 8080,
-    contentBase: path.join(__dirname, './dist'),
-    historyApiFallback: true,
-    host: '0.0.0.0'
-  },
+
   resolve: {
     alias: {
       pages: path.join(__dirname, "src/pages"),
@@ -57,7 +58,7 @@ module.exports = {
       reducers: path.join(__dirname, 'src/redux/reducers')
     }
   },
-  devtool: 'inline-source-map',
+  devtool: 'cheap-module-source-map',
   plugins: [new HtmlWebpackPlugin({
     filename: 'index.html',
     template: path.join(__dirname, 'src/index.html')
@@ -65,8 +66,16 @@ module.exports = {
   new webpack.optimize.CommonsChunkPlugin({
     name: 'vendor'
   }),
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'runtime'
+  new UglifyJSPlugin(),
+  new webpack.DefinePlugin({
+    'process.env': {
+      'NODE_ENV': JSON.stringify('production')
+    }
+  }),
+  new CleanWebpackPlugin(['dist']),
+  new ExtractTextPlugin({
+    filename: '[name].[contenthash:5].css',
+    allChunks: true
   })
   ],
 };
